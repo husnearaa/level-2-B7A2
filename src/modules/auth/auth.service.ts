@@ -1,0 +1,58 @@
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import config from "../../config";
+import { pool } from "../../db";
+
+export const registerUser = async (payload: any) => {
+  const { name, email, password, role } = payload;
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const result = await pool.query(
+    `
+    INSERT INTO users (name, email, password, role)
+    VALUES ($1, $2, $3, $4)
+    RETURNING id, name, email, role
+    `,
+    [name, email, hashedPassword, role || "contributor"]
+  );
+
+  return result.rows[0];
+};
+
+export const loginUser = async (payload: any) => {
+  const { email, password } = payload;
+
+  const result = await pool.query(
+    `SELECT * FROM users WHERE email = $1`,
+    [email]
+  );
+
+  if (!result.rows.length) {
+    throw new Error("Invalid credentials");
+  }
+
+  const user = result.rows[0];
+
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (!isMatch) {
+    throw new Error("Invalid credentials");
+  }
+
+  const token = jwt.sign(
+    { id: user.id, role: user.role },
+    config.secret as string,
+    { expiresIn: "1d" }
+  );
+
+  return {
+    token,
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+  };
+};

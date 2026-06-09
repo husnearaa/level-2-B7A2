@@ -5,6 +5,7 @@ import express, {
   type Request,
   type Response,
 } from "express";
+import { authRoute } from "./modules/auth/auth.route";
 const app: Application = express();
 
 app.use(CookieParser());
@@ -28,8 +29,12 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 // app.use("/api/users", userRoute);
+app.use("/api/auth", authRoute);
 
 
 
 
 export default app;
+
+
+
