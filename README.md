@@ -54,4 +54,65 @@ The system is built with Node.js, Express, TypeScript, and PostgreSQL using raw 
 
 ---
 
+### 2. Create Environment Variables
 
+PORT=5000
+DATABASE_URL=your_postgresql_connection_string
+JWT_SECRET=your_secret_key
+JWT_EXPIRES_IN=7d
+BCRYPT_SALT_ROUNDS=10
+
+### 3. Run Development Server
+npm run dev
+
+### 4. Build Project
+npm run build
+
+### 5. Start Production Server
+npm start
+
+
+## API Endpoint List
+### Authentication
+POST /api/auth/signup → Register user
+POST /api/auth/login → Login user
+### Issues
+POST /api/issues → Create issue (Auth required)
+GET /api/issues → Get all issues (with filters)
+GET /api/issues/:id → Get single issue
+PATCH /api/issues/:id → Update issue (role-based)
+DELETE /api/issues/:id → Delete issue (maintainer only)
+
+## Query Parameters:
+sort = newest | oldest
+type = bug | feature_request
+status = open | in_progress | resolved
+
+## Database Schema Summary
+### users table
+id: Auto-increment primary key
+name: Full name
+email: Unique email address
+password: Hashed password (never returned)
+role: contributor / maintainer (default: contributor)
+created_at: Timestamp
+updated_at: Timestamp
+
+### issues table
+id: Auto-increment primary key
+title: Issue title (max 150 characters)
+description: Detailed issue description
+type: bug | feature_request
+status: open | in_progress | resolved
+reporter_id: ID of user who created issue
+created_at: Timestamp
+updated_at: Timestamp
+
+
+## Authentication Flow
+User registers or logs in
+Server validates credentials
+JWT token is generated
+Client stores token
+Token is sent in Authorization header
+Server verifies token before protected routes
