@@ -12,7 +12,7 @@ export const registerUser = async (payload: any) => {
     `
     INSERT INTO users (name, email, password, role)
     VALUES ($1, $2, $3, $4)
-    RETURNING id, name, email, role
+    RETURNING id, name, email, role, created_at, updated_at 
     `,
     [name, email, hashedPassword, role || "contributor"]
   );
@@ -53,6 +53,8 @@ export const loginUser = async (payload: any) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
     },
   };
 };
